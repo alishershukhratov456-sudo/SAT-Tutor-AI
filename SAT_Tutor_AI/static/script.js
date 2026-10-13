@@ -127,7 +127,24 @@ askButton.addEventListener("click", async () => {
       body: formData,
     });
 
-    const data = await response.json();
+    // UPDATED: Read the response before attempting to parse JSON.
+    const responseText = await response.text();
+
+    let data;
+
+    try {
+      data = JSON.parse(responseText);
+    } catch {
+      console.error(
+        "Server response:",
+        response.status,
+        responseText
+      );
+
+      throw new Error(
+        `Server returned an invalid response (HTTP ${response.status}). Check Render Logs.`
+      );
+    }
 
     if (!response.ok) {
       throw new Error(data.error || `Request failed (${response.status})`);
